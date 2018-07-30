@@ -55,7 +55,7 @@ class ModuleManager implements ModuleContract
      */
     public function has($module)
     {
-        return count($this->modules) && $this->modules->has($module);
+        return $this->modules->isNotEmpty() && $this->modules->has($module);
     }
 
     /**
@@ -107,28 +107,30 @@ class ModuleManager implements ModuleContract
         $moduleDirectories = glob($this->basePath.'/*', GLOB_ONLYDIR);
         $modules = collect();
 
-        foreach ($moduleDirectories as $key => $modulePath) {
+        if(count($moduleDirectories)) {
+            foreach ($moduleDirectories as $key => $modulePath) {
 
-            $moduleConfigPath = $modulePath.'/'.config('module.config.name');
-            $moduleChangelogPath = $modulePath.'/'.config('module.config.changelog');
+                $moduleConfigPath = $modulePath . '/' . config('module.config.name');
+                $moduleChangelogPath = $modulePath . '/' . config('module.config.changelog');
 
-            if (file_exists($moduleConfigPath)) {
+                if (file_exists($moduleConfigPath)) {
 
-                $m = json_decode(file_get_contents($moduleConfigPath), true);
+                    $m = json_decode(file_get_contents($moduleConfigPath), true);
 
-                $moduleConfig = $m;
-                $moduleConfig =  $this->checkInDatabase($moduleConfig, $key);
+                    $moduleConfig = $m;
+                    $moduleConfig = $this->checkInDatabase($moduleConfig, $key);
 
-                if($moduleConfig['core']){
-                    $moduleConfig['active'] = true;
-                }
+                    if ($moduleConfig['core']) {
+                        $moduleConfig['active'] = true;
+                    }
 
-                $c = json_decode(file_get_contents($moduleChangelogPath), true);
-                $moduleConfig['changelog'] = $c;
-                $moduleConfig['path'] = $modulePath;
+                    $c = json_decode(file_get_contents($moduleChangelogPath), true);
+                    $moduleConfig['changelog'] = $c;
+                    $moduleConfig['path'] = $modulePath;
 
-                if (array_has($moduleConfig, 'module')) {
-                    $modules[data_get($moduleConfig, 'module')] = collect($moduleConfig);
+                    if (array_has($moduleConfig, 'module')) {
+                        $modules[data_get($moduleConfig, 'module')] = collect($moduleConfig);
+                    }
                 }
             }
         }

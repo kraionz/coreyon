@@ -52,7 +52,7 @@ class PluginManager implements PluginContract
      */
     public function has($plugin)
     {
-        return is_array($this->plugins) && array_key_exists($plugin, $this->plugins);
+        return $this->plugins->isNotEmpty() && $this->plugins->has($plugin);
     }
 
     /**
@@ -102,28 +102,32 @@ class PluginManager implements PluginContract
     {
         $pluginDirectories = glob($this->basePath.'/*', GLOB_ONLYDIR);
         $plugins = collect();
-        foreach ($pluginDirectories as $key => $pluginPath) {
-            $pluginConfigPath = $pluginPath.'/'.config('plugin.config.name');
-            $pluginChangelogPath = $pluginPath.'/'.config('plugin.config.changelog');
 
-            if (file_exists($pluginConfigPath)) {
-                $p = json_decode(file_get_contents($pluginConfigPath), true);
-                $pluginConfig = $p;
-                $pluginConfig =  $this->checkInDatabase($pluginConfig, $key);
+        if(count($pluginDirectories)){
+            foreach ($pluginDirectories as $key => $pluginPath) {
+                $pluginConfigPath = $pluginPath.'/'.config('plugin.config.name');
+                $pluginChangelogPath = $pluginPath.'/'.config('plugin.config.changelog');
 
-                if($pluginConfig['core']){
-                    $pluginConfig['active'] = true;
-                }
+                if (file_exists($pluginConfigPath)) {
+                    $p = json_decode(file_get_contents($pluginConfigPath), true);
+                    $pluginConfig = $p;
+                    $pluginConfig =  $this->checkInDatabase($pluginConfig, $key);
 
-                $c = json_decode(file_get_contents($pluginChangelogPath), true);
-                $pluginConfig['changelog'] = $c;
-                $pluginConfig['path'] = $pluginPath;
+                    if($pluginConfig['core']){
+                        $pluginConfig['active'] = true;
+                    }
 
-                if (array_has($pluginConfig, 'plugin')) {
-                    $plugins[data_get($pluginConfig, 'plugin')] = collect($pluginConfig);
+                    $c = json_decode(file_get_contents($pluginChangelogPath), true);
+                    $pluginConfig['changelog'] = $c;
+                    $pluginConfig['path'] = $pluginPath;
+
+                    if (array_has($pluginConfig, 'plugin')) {
+                        $plugins[data_get($pluginConfig, 'plugin')] = collect($pluginConfig);
+                    }
                 }
             }
         }
+
         $this->plugins = $plugins;
     }
 

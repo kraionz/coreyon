@@ -110,7 +110,7 @@ class ThemeManager implements ThemeContract
      */
     public function has($theme)
     {
-        return count($this->themes) && $this->themes->has($theme);
+        return $this->themes->isNotEmpty() && $this->themes->has($theme);
     }
 
     /**
@@ -244,6 +244,7 @@ class ThemeManager implements ThemeContract
     {
         $themeDirectories = glob($this->basePath.'/*', GLOB_ONLYDIR);
         $themes = collect();
+
         if(count($themeDirectories)){
             foreach ($themeDirectories as $key => $themePath) {
 
@@ -266,8 +267,9 @@ class ThemeManager implements ThemeContract
                     }
                 }
             }
-            $this->themes = $themes;
         }
+
+        $this->themes = $themes;
     }
 
     /**
