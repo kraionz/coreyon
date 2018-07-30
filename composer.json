@@ -1,0 +1,29 @@
+{
+    "name": "creatyon/core",
+    "description": "The Creatyon Core",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Creatyon",
+            "email": "core@creatyon.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "anlutro/l4-settings": "^0.7.3",
+        "spatie/laravel-permission": "^2.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "Creatyon\\Core\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Creatyon\\Core\\CoreServiceProvider"
+            ]
+        }
+    }
+}
